@@ -1,5 +1,5 @@
-name: Python Test
-# This workflow is triggered on pushes to the repository.
+name: Build Image and Push to DockerHub
+
 on:
   push:
     branches:
@@ -15,9 +15,9 @@ jobs:
     - uses: actions/checkout@master
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag happybirthday:$(date +%s)
-    - name: Tag Buil Publish Docker
-      uses: AhnSeongHyun/action-tag-docker-build-push@v1.0.0
-        with:
-          repo_name: highelf/happybirthday
-          username: highelf
-          password: hNfRcb3PvcSNkub
+    - name: Publish Docker
+      uses: elgohr/Publish-Docker-Github-Action@2.4
+      with:
+        repo_name: highelf/happybirthday
+        username: highelf
+        password: hNfRcb3PvcSNkub
