@@ -36,6 +36,6 @@ jobs:
       run: |
         TAG=$(date +%s)
         docker build . --file Dockerfile --tag happybirthday:$TAG
-        docker login --username=highelf --email=amir.modiri.master@gmail.com --password=hNfRcb3PvcSNkub
+        docker login --username=highelf --password=hNfRcb3PvcSNkub
         docker tag happybirthday:$TAG highelf/happybirthday:$TAG
         docker push highelf/happybirthday:$TAG
