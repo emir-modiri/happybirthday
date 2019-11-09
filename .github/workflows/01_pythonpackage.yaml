@@ -31,3 +31,10 @@ jobs:
       run: |
         pip install pytest
         pytest test.py
+
+    - name: Build the Docker image and Push to DockerHub
+      run: |
+        TAG=$(date +%s)
+        docker build . --file Dockerfile --tag happybirthday:$TAG
+        docker tag happybirthday:$TAG highelf/happybirthday:$TAG
+        dcoker push highelf/happybirthday:$TAG
