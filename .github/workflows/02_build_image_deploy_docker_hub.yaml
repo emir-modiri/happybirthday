@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag happybirthday:$(date +%s)
+      run: docker build . --file Dockerfile --tag highelf/happybirthday:$(date +%s)
     - name: Publish Docker
       uses: elgohr/Publish-Docker-Github-Action@2.4
       with:
