@@ -12,6 +12,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@master
+    - name: test AWS Kubernetes Cluster
+      run: |
+        aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region eu-central-1
+        kubectl get pods
+        echo "Done."
+      env:
+        AWS_DEFAULT_REGION: eu-central-1
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_Access_Key_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_Secret_Access_Key }}
+        EKS_CLUSTER_NAME: devops
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
     - name: Set up Python 3.6
       uses: actions/setup-python@v1
       with:
@@ -47,7 +58,7 @@ jobs:
         DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASS }}
     - name: Deploy to AWS Kubernetes Cluster
       run: |
-        aws eks update-kubeconfig --name $EKS_Cluster_Name --region $AWS_DEFAULT_REGION
+        aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region eu-central-1
         DEPLOYMENT_FILE=deployment.yaml
         SERVICE_FILE=service.yaml
         DEPLOYMENTNAME=happybirthday-$DEPLOYMENTVERSION
@@ -76,5 +87,5 @@ jobs:
         AWS_DEFAULT_REGION: eu-central-1
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_Access_Key_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_Secret_Access_Key }}
-        EKS_Cluster_Name: ${{ secrets.AWS_Secret_Access_Key }}
+        EKS_CLUSTER_NAME: devops
         DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
