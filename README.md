@@ -13,3 +13,17 @@ CREATE TABLE user (
     dateOfBirth TEXT NOT NULL
 );
 ```
+## github action pipline
+you must set at least thise secrets for this pipeline
+
+DOCKERHUB_USERNAME
+DOCKERHUB_PASSWORD
+AWS_Access_Key_ID
+AWS_Secret_Access_Key
+
+### github pipeline steps
+* Test with pytest
+* Build the Docker image and Push to DockerHub
+* Deploy to AWS Kubernetes Cluster
+
+> Notic: Deployment Method on the Kubernetes is Blue/Green Method
