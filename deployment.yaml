@@ -10,7 +10,7 @@ spec:
     metadata:
       labels:
         app: happybirthday
-        version: DEPLOYMENTVERSION
+        version: "DEPLOYMENTVERSION"
     spec:
       containers:
       - name: happybirthday

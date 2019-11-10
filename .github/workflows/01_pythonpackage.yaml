@@ -13,9 +13,32 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: test AWS Kubernetes Cluster
+      - name: Deploy to AWS Kubernetes Cluster
       run: |
-        aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region eu-central-1
-        kubectl get pods
+        aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
+        DEPLOYMENT_FILE=deployment.yaml
+        SERVICE_FILE=service.yaml
+        DEPLOYMENTNAME=happybirthday-$DEPLOYMENTVERSION
+        IMAGENAME=happybirthday
+        IMAGEREPO=$DOCKERHUB_USERNAME
+        
+        sed -i "s/DEPLOYMENTNAME/${DEPLOYMENTNAME}/g" $DEPLOYMENT_FILE
+        sed -i "s/DEPLOYMENTVERSION/${DEPLOYMENTVERSION}/g" $DEPLOYMENT_FILE
+        sed -i "s/IMAGENAME/${IMAGENAME}/g; s/IMAGEREPO/${IMAGEREPO}/g" $DEPLOYMENT_FILE
+        cat $DEPLOYMENT_FILE
+        
+        kubectl apply -f $DEPLOYMENT_FILE
+
+        # Wait until the Deployment is ready by checking the MinimumReplicasAvailable condition.
+        READY=$(kubectl get deploy $DEPLOYMENTNAME -o json | jq '.status.conditions[] | select(.reason == "MinimumReplicasAvailable") | .status' | tr -d '"')
+        while [[ "$READY" != "True" ]]; do
+            READY=$(kubectl get deploy $DEPLOYMENTNAME -o json | jq '.status.conditions[] | select(.reason == "MinimumReplicasAvailable") | .status' | tr -d '"')
+            sleep 5
+        done
+
+        # Update the service selector with the new version
+        sed -i "s/DEPLOYMENTVERSION/${DEPLOYMENTVERSION}/g" $SERVICE_FILE
+        kubectl apply -f $SERVICE_FILE
         echo "Done."
       env:
         AWS_DEFAULT_REGION: eu-central-1
@@ -23,6 +46,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_Secret_Access_Key }}
         EKS_CLUSTER_NAME: devops
         DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DEPLOYMENTVERSION: 1573380764
     - name: Set up Python 3.6
       uses: actions/setup-python@v1
       with:

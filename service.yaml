@@ -5,7 +5,7 @@ metadata:
 spec:
   selector:
     app: happybirthday
-    version: DEPLOYMENTVERSION
+    version: "DEPLOYMENTVERSION"
   ports:
     - protocol: TCP
       port: 80
