@@ -34,8 +34,52 @@ jobs:
 
     - name: Build the Docker image and Push to DockerHub
       run: |
-        TAG=$(date +%s)
-        docker build . --file Dockerfile --tag happybirthday:$TAG
-        docker login --username=highelf --password=hNfRcb3PvcSNkub
-        docker tag happybirthday:$TAG highelf/happybirthday:$TAG
-        docker push highelf/happybirthday:$TAG
+        DEPLOYMENTVERSION=$(date +%s)
+
+        ::set-env name=DEPLOYMENTVERSION::$DEPLOYMENTVERSION
+
+        docker build . --file Dockerfile --tag happybirthday:$DEPLOYMENTVERSION
+        docker login --username=$DOCKERHUB_USERNAME --password=$DOCKERHUB_PASSWORD
+        docker tag happybirthday:$DEPLOYMENTVERSION $DOCKERHUB_USERNAME/happybirthday:$DEPLOYMENTVERSION
+        docker push $DOCKERHUB_USERNAME/happybirthday:$DEPLOYMENTVERSION
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASS }}
+    - uses: actions/aws@master
+    - name: Deploy to AWS Kubernetes Cluster
+      run: |
+        aws eks update-kubeconfig --name $EKS_Cluster_Name --region $AWS_DEFAULT_REGION
+        DEPLOYMENT_FILE=deployment.yaml
+        SERVICE_FILE=service.yaml
+        DEPLOYMENTNAME=happybirthday-$DEPLOYMENTVERSION
+        IMAGENAME=happybirthday
+        IMAGEREPO=$DOCKERHUB_USERNAME
+        
+        sed -i "s/DEPLOYMENTNAME/${DEPLOYMENTNAME}/g" $DEPLOYMENT_FILE
+        sed -i "s/DEPLOYMENTVERSION/${DEPLOYMENTVERSION}/g" $DEPLOYMENT_FILE
+        sed -i "s/IMAGENAME/${IMAGENAME}/g; s/IMAGEREPO/${IMAGEREPO}/g" $DEPLOYMENT_FILE
+        
+        
+        kubectl apply -f $DEPLOYMENT_FILE
+
+        # Wait until the Deployment is ready by checking the MinimumReplicasAvailable condition.
+        READY=$(kubectl get deploy $DEPLOYMENTNAME -o json | jq '.status.conditions[] | select(.reason == "MinimumReplicasAvailable") | .status' | tr -d '"')
+        while [[ "$READY" != "True" ]]; do
+            READY=$(kubectl get deploy $DEPLOYMENTNAME -o json | jq '.status.conditions[] | select(.reason == "MinimumReplicasAvailable") | .status' | tr -d '"')
+            sleep 5
+        done
+
+        # Update the service selector with the new version
+        sed -i "s/DEPLOYMENTVERSION/${DEPLOYMENTVERSION}/g" $SERVICE_FILE
+        kubectl apply -f $SERVICE_FILE
+        echo "Done."
+      env:
+        AWS_DEFAULT_REGION: eu-central-1
+        AWS_Access_Key_ID: ${{ secrets.AWS_Access_Key_ID }}
+        AWS_Secret_Access_Key: ${{ secrets.AWS_Secret_Access_Key }}
+        EKS_Cluster_Name: ${{ secrets.AWS_Secret_Access_Key }}
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      - uses: actions/upload-artifact@master
+        with:
+          name: my-artifact
+          path: ~/.kube
