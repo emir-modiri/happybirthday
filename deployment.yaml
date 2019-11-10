@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: DEPLOYMENTNAME
+spec:
+  selector:
+    matchLabels:
+      app: happybirthday
+  template:
+    metadata:
+      labels:
+        app: happybirthday
+        version: DEPLOYMENTVERSION
+    spec:
+      containers:
+      - name: happybirthday
+        image: IMAGEREPO/IMAGENAME:DEPLOYMENTVERSION
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 5000
+
+
+
