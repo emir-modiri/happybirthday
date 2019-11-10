@@ -1,2 +1,6 @@
 flask
 pytest
+flask_api
+flask_sqlalchemy
+flask_marshmallow
+marshmallow-sqlalchemy
