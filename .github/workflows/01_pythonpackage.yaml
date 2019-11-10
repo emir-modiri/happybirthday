@@ -45,7 +45,3 @@ jobs:
       env:
         DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASS }}
-      - uses: actions/upload-artifact@master
-        with:
-          name: my-artifact
-          path: ~/.kube
