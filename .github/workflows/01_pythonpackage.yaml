@@ -13,7 +13,6 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: test AWS Kubernetes Cluster
-      - name: Deploy to AWS Kubernetes Cluster
       run: |
         aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
         DEPLOYMENT_FILE=deployment.yaml
