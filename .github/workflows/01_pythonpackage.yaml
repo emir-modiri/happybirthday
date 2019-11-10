@@ -36,7 +36,7 @@ jobs:
       run: |
         DEPLOYMENTVERSION=$(date +%s)
 
-        ::set-env name=DEPLOYMENTVERSION::$DEPLOYMENTVERSION
+        echo "::set-env name=DEPLOYMENTVERSION::$DEPLOYMENTVERSION"
 
         docker build . --file Dockerfile --tag happybirthday:$DEPLOYMENTVERSION
         docker login --username=$DOCKERHUB_USERNAME --password=$DOCKERHUB_PASSWORD
@@ -45,3 +45,14 @@ jobs:
       env:
         DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASS }}
+    - uses: actions/aws@master
+    - name: Deploy to AWS Kubernetes Cluster
+      run: |
+        echo $DEPLOYMENTVERSION
+        echo "Done."
+      env:
+        AWS_DEFAULT_REGION: eu-central-1
+        AWS_Access_Key_ID: ${{ secrets.AWS_Access_Key_ID }}
+        AWS_Secret_Access_Key: ${{ secrets.AWS_Secret_Access_Key }}
+        EKS_Cluster_Name: ${{ secrets.AWS_Secret_Access_Key }}
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
