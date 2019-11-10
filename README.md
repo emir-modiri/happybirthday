@@ -27,3 +27,12 @@ AWS_Secret_Access_Key
 * Deploy to AWS Kubernetes Cluster
 
 > Notic: Deployment Method on the Kubernetes is Blue/Green Method
+
+## for testing prod deployment
+> it is from local without loadbalancer or any nginx ingress from public
+> notice you must have access from you local machine to cluster by kubectl
+
+` kubectl port-forward NAME_OF_THE_POD 5000:5000`
+`curl -d '{"username":"emir", "dateOfBirth":"1981-01-02"}' -H "Content-Type: application/json" -X POST localhost:5000/user`
+or
+`curl -H "Content-Type: application/json" localhost:5000/`
