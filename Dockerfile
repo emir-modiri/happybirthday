@@ -10,7 +10,7 @@ WORKDIR /app
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py /app/app.py
-
+COPY crud.sqlite /app/crud.sqlite 
 ENTRYPOINT [ "python" ]
 
 CMD [ "app.py" ]
