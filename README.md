@@ -28,6 +28,8 @@ AWS_Secret_Access_Key
 
 > Notic: Deployment Method on the Kubernetes is Blue/Green Method
 
+![alt topology](topology.jpg)
+
 ## for testing prod deployment
 > it is from local without loadbalancer or any nginx ingress from public
 > notice you must have access from you local machine to cluster by kubectl
